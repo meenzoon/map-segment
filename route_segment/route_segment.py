@@ -35,20 +35,24 @@ def split_line_by_length(line: LineString, seg_len: float):
     """
     하나의 LineString을 seg_len(예: 100m) 이하가 되도록
     여러 LineString 세그먼트로 쪼갬.
-    변곡점(각 vertex)도 포함해 자름.
+    변곡점(각 vertex)마다 자르고, 길이가 seg_len보다 길면 추가로 자름.
     """
     segments = []
-    current_line = line
+    coords = list(line.coords)
 
-    # 현재 길이 기준으로 계속 잘라 나감
-    while current_line.length > seg_len:
-        # seg_len 위치에서 잘라서 두 개로 나눔
-        first, rest = cut_line(current_line, seg_len)
-        segments.append(first)
-        current_line = rest
+    for i in range(len(coords) - 1):
+        sub_line = LineString([coords[i], coords[i+1]])
 
-    # 마지막 나머지 조각
-    segments.append(current_line)
+        if sub_line.length > seg_len:
+            current_sub = sub_line
+            while current_sub.length > seg_len:
+                first, rest = cut_line(current_sub, seg_len)
+                segments.append(first)
+                current_sub = rest
+            segments.append(current_sub)
+        else:
+            segments.append(sub_line)
+
     return segments
 
 
