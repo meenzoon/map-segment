@@ -80,8 +80,9 @@ def process_shapefile(
     print(out_file_type)
     print("GeoJSON" if out_file_type == "geojson" else None)
     
-    if gdf.crs != 'EPSG:4326':
-        gdf = gdf.to_crs(epsg=4326)
+    # meter 단위로 계산하기 위해서 UTM-K (EPSG:5179) 좌표계로 변환
+    if gdf.crs != 'EPSG:5179':
+        gdf = gdf.to_crs(epsg=5179)
     
     
     out_records = []
@@ -106,7 +107,8 @@ def process_shapefile(
             new_row["len"] = seg.length
             out_records.append(new_row)
 
-    out_gdf = gpd.GeoDataFrame(out_records, crs="EPSG:4326")
+    out_gdf = gpd.GeoDataFrame(out_records, crs="EPSG:5179")
+    out_gdf = out_gdf.to_crs(epsg=4326)
     out_gdf.to_file(out_path, driver=("GeoJSON" if out_file_type == "geojson" else None))
 
 
