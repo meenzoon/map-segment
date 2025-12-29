@@ -121,6 +121,6 @@ if __name__ == "__main__":
         in_path=in_path,
         out_path=out_path,
         link_id_field="link_id",  # 실제 필드명으로 변경
-        id_mode="dash",  # "dash" 또는 "underscore"
-        seg_len=100.0,  # 100m
+        id_mode="dash",
+        seg_len=100.0,
     )
