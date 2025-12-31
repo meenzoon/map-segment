@@ -79,12 +79,11 @@ def process_shapefile(
     gdf = gpd.read_file(in_path)
     print(out_file_type)
     print("GeoJSON" if out_file_type == "geojson" else None)
-    
+
     # meter 단위로 계산하기 위해서 UTM-K (EPSG:5179) 좌표계로 변환
-    if gdf.crs != 'EPSG:5179':
+    if gdf.crs != "EPSG:5179":
         gdf = gdf.to_crs(epsg=5179)
-    
-    
+
     out_records = []
 
     for idx, row in gdf.iterrows():
@@ -109,17 +108,34 @@ def process_shapefile(
 
     out_gdf = gpd.GeoDataFrame(out_records, crs="EPSG:5179")
     out_gdf = out_gdf.to_crs(epsg=4326)
-    out_gdf.to_file(out_path, driver=("GeoJSON" if out_file_type == "geojson" else None))
+    out_gdf.to_file(
+        out_path, driver=("GeoJSON" if out_file_type == "geojson" else None)
+    )
 
 
 if __name__ == "__main__":
     # 사용 예시
-    in_path = "out/route/link_20250903.shp"
-    out_path = "out/output_route_segment.geojson"
+    parser.add_argument(
+        "--in-path", type=str, required=True, help="Input shapefile path"
+    )
+    parser.add_argument(
+        "--in-file-type",
+        type=str,
+        default="shp",
+        help="Input file type: shp or geojson",
+    )
+    parser.add_argument("--out-path", type=str, help="Output file path")
+    parser.add_argument(
+        "--out-file-type",
+        type=str,
+        default="geojson",
+        help="Output file type: shp or geojson",
+    )
 
+    args = parser.parse_args()
     process_shapefile(
-        in_path=in_path,
-        out_path=out_path,
+        in_path=args.in_path,
+        out_path=args.out_path,
         link_id_field="link_id",  # 실제 필드명으로 변경
         id_mode="dash",
         seg_len=100.0,
