@@ -77,8 +77,6 @@ def process_shapefile(
     shp 파일에서 LINESTRING 링크를 읽어서 100m 단위(또는 seg_len)로 자른 Route Segment를 생성하고, 새 파일로 저장.
     """
     gdf = gpd.read_file(in_path)
-    print(out_file_type)
-    print("GeoJSON" if out_file_type == "geojson" else None)
 
     # meter 단위로 계산하기 위해서 UTM-K (EPSG:5179) 좌표계로 변환
     if gdf.crs != "EPSG:5179":
@@ -118,25 +116,23 @@ if __name__ == "__main__":
     parser.add_argument(
         "--in-path", type=str, required=True, help="Input shapefile path"
     )
-    parser.add_argument(
-        "--in-file-type",
-        type=str,
-        default="shp",
-        help="Input file type: shp or geojson",
-    )
     parser.add_argument("--out-path", type=str, help="Output file path")
     parser.add_argument(
         "--out-file-type",
         type=str,
         default="geojson",
+        choices=["shp", "geojson"],
         help="Output file type: shp or geojson",
     )
+    parser.add_argument("--link-id-field", type=str, default="link_id", help="Link ID field name")
+    parser.add_argument("--seg-len", type=int, default=100, help="Segment length in meters")
 
     args = parser.parse_args()
     process_shapefile(
         in_path=args.in_path,
         out_path=args.out_path,
-        link_id_field="link_id",  # 실제 필드명으로 변경
+        out_file_type=args.out_file_type,
+        link_id_field=args.link_id_field,
         id_mode="dash",
-        seg_len=100.0,
+        seg_len=args.seg_len,
     )
